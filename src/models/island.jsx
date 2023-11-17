@@ -31,12 +31,18 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
     e.preventDefault();
 
     if (isRotating) {
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-
-      const delta = (clientX - lastX.current) / viewport.width;
-
-      islandRef.current.rotation.y += delta * 0.01 * Math.PI;
-      lastX.current = clientX;
+      let delta;
+      if (e.touches) {
+        const clientX = e.touches[0].clientX;
+        delta = (clientX - lastX.current) / viewport.width;
+        islandRef.current.rotation.y += delta * 0.005 * Math.PI;
+        lastX.current = clientX;
+      } else {
+        const clientX = e.clientX;
+        delta = (clientX - lastX.current) / viewport.width;
+        islandRef.current.rotation.y += delta * 0.005 * Math.PI;
+        lastX.current = clientX;
+      }
       rotationSpeed.current = delta * 0.01 * Math.PI;
     }
   };
@@ -44,9 +50,11 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
     if (e.key === "ArrowLeft") {
       if (!isRotating) setIsRotating(true);
       islandRef.current.rotation.y += 0.01 * Math.PI;
+      rotationSpeed.current = 0.0125;
     } else if (e.key === "ArrowRight") {
       if (!isRotating) setIsRotating(true);
       islandRef.current.rotation.y -= 0.01 * Math.PI;
+      rotationSpeed.current = -0.0125;
     }
   };
   const handleKeyUp = (e) => {
@@ -93,6 +101,9 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
     canvas.addEventListener("pointerdown", handlePointerDown);
     canvas.addEventListener("pointerup", handlePointerUp);
     canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("touchstart", handlePointerDown);
+    canvas.addEventListener("touchend", handlePointerUp);
+    // canvas.addEventListener("touchmove", handlePointerMove);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
 
@@ -100,6 +111,9 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
       canvas.removeEventListener("pointerdown", handlePointerDown);
       canvas.removeEventListener("pointerup", handlePointerUp);
       canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("touchstart", handlePointerDown);
+      canvas.removeEventListener("touchend", handlePointerUp);
+      // canvas.removeEventListener("touchmove", handlePointerMove);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keyup", handleKeyUp);
     };
